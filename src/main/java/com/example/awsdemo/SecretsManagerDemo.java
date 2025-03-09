@@ -37,36 +37,39 @@ public class SecretsManagerDemo {
                 .build();
 
         GetSecretValueResponse getSecretValueResponse;
+        String secretString = "";
 
         try {
             getSecretValueResponse = client.getSecretValue(getSecretValueRequest);
+            secretString = getSecretValueResponse.secretString();
+            
+            // Print all keys and values from the secret JSON
+            try {
+                System.out.println("\nSecret contents:");
+                System.out.println("---------------");
+                
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(secretString);
+                
+                // Iterate through all fields in the JSON
+                Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> field = fields.next();
+                    System.out.println(field.getKey() + ": " + field.getValue().asText());
+                }
+                System.out.println("---------------\n");
+            } catch (Exception e) {
+                System.err.println("Error parsing secret JSON: " + e.getMessage());
+                // If it's not valid JSON, just print the raw string
+                System.out.println("Raw secret value: " + secretString);
+            }
         } catch (Exception e) {
             // For a list of exceptions thrown, see
             // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
             throw e;
-        }
-
-        String secretString = getSecretValueResponse.secretString();
-        
-        // Print all keys and values from the secret JSON
-        try {
-            System.out.println("\nSecret contents:");
-            System.out.println("---------------");
-            
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(secretString);
-            
-            // Iterate through all fields in the JSON
-            Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> field = fields.next();
-                System.out.println(field.getKey() + ": " + field.getValue().asText());
-            }
-            System.out.println("---------------\n");
-        } catch (Exception e) {
-            System.err.println("Error parsing secret JSON: " + e.getMessage());
-            // If it's not valid JSON, just print the raw string
-            System.out.println("Raw secret value: " + secretString);
+        } finally {
+            // Properly close the client to avoid thread lingering issues
+            client.close();
         }
         
         return secretString;
