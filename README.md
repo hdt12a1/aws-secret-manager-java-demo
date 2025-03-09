@@ -113,17 +113,40 @@ Build the project using Maven:
 
 ## Running the Application
 
-You can run the application in two ways:
+After building the project with `mvn clean package`, you can run the application in several ways:
 
 1. **Using Maven's exec plugin**:
    ```bash
    mvn exec:java
    ```
+   This uses the configuration in your pom.xml that specifies the main class to run.
 
-2. **Directly using Java**:
+2. **Directly using Java with the JAR file**:
    ```bash
    java -cp target/aws-demo-1.0-SNAPSHOT.jar com.example.awsdemo.SecretsManagerDemo
    ```
+   This runs the specific main class from your JAR file.
+
+3. **Using Java with classpath to include all dependencies**:
+   ```bash
+   java -cp target/aws-demo-1.0-SNAPSHOT.jar:target/dependency/* com.example.awsdemo.SecretsManagerDemo
+   ```
+   This approach is useful if you need to manually specify dependencies.
+
+4. **Creating an executable JAR** (requires additional configuration in pom.xml):
+   If you configure your pom.xml with the maven-shade-plugin or maven-assembly-plugin to create an executable JAR, you can run:
+   ```bash
+   java -jar target/aws-demo-1.0-SNAPSHOT.jar
+   ```
+
+5. **Using an IDE's run configuration**:
+   If you're using an IDE like IntelliJ IDEA or Eclipse, you can create and use run configurations to execute your application directly from the IDE.
+
+6. **Running with specific JVM arguments**:
+   ```bash
+   java -Xmx512m -cp target/aws-demo-1.0-SNAPSHOT.jar com.example.awsdemo.SecretsManagerDemo
+   ```
+   This allows you to specify JVM arguments like memory settings.
 
 ## Troubleshooting
 
